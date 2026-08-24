@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://reviewreply-lilac.vercel.app/sitemap.xml
