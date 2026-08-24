@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReviewReply — Answer every Google review like a pro, in seconds</title>
+<meta name="description" content="Paste a customer review, get three polished, ready-to-post responses. Free to try — Pro is $19 once, yours forever.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<script src="/config.js"></script>
+<style>
+:root{--bg:#f7f8fc;--card:#fff;--ink:#131a2a;--mut:#5b677d;--line:#e4e8f2;--brand:#2563eb;--brand2:#1d4ed8;--ok:#059669;--warn:#b45309}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;background:rgba(247,248,252,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:800;font-size:19px;text-decoration:none;color:var(--ink);letter-spacing:-.02em}
+.logo span{color:var(--brand)}
+.nav-links{display:flex;gap:22px;align-items:center;font-size:15px}
+.nav-links a{color:var(--mut);text-decoration:none}
+.nav-links a:hover{color:var(--ink)}
+.btn{display:inline-block;background:var(--brand);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--brand2)}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover{background:#f1f4fa}
+.hero{text-align:center;padding:64px 0 30px}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.12;letter-spacing:-.03em;font-weight:800}
+h1 em{font-style:normal;color:var(--brand)}
+.sub{color:var(--mut);font-size:18px;max-width:640px;margin:16px auto 26px}
+.pill{display:inline-block;background:#eef2ff;color:var(--brand2);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600;margin-bottom:18px}
+/* tool */
+.tool{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 40px rgba(19,26,42,.07);padding:22px;max-width:780px;margin:0 auto}
+.tool-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.tool-title{font-weight:700;font-size:17px}
+.chip{font-size:13px;color:var(--mut);background:#f1f4fa;border-radius:999px;padding:4px 12px}
+.chip.pro{background:#ecfdf5;color:var(--ok);font-weight:600}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--ink);background:#fbfcfe}
+textarea:focus,input:focus{outline:2px solid #bfdbfe;border-color:var(--brand)}
+textarea{min-height:110px;resize:vertical}
+.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.row .grow{flex:1;min-width:220px}
+.hint{font-size:12.5px;color:var(--mut);margin-top:8px}
+.gen{width:100%;padding:13px;font-size:16px;margin-top:14px}
+.results{margin-top:18px;display:none}
+.reply-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px;background:#fdfdff}
+.reply-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.reply-label{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--brand2)}
+.copy{font-size:13px;padding:6px 12px}
+.copy.done{background:var(--ok)}
+.err{display:none;margin-top:12px;background:#fef3c7;border:1px solid #fde68a;color:var(--warn);border-radius:10px;padding:10px 14px;font-size:14px}
+.spin{display:none;text-align:center;color:var(--mut);font-size:14px;padding:14px 0 4px}
+/* sections */
+section{padding:56px 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h3{font-size:16.5px;margin-bottom:8px}
+.card p{color:var(--mut);font-size:14.5px}
+.step-n{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#eef2ff;color:var(--brand2);align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-bottom:10px}
+h2.sec{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;text-align:center;margin-bottom:8px}
+p.secs{color:var(--mut);text-align:center;max-width:560px;margin:0 auto 30px}
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;max-width:760px;margin:0 auto}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px}
+.plan.hot{border-color:var(--brand);box-shadow:0 8px 30px rgba(37,99,235,.12);position:relative}
+.tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px}
+.price{font-size:38px;font-weight:800;letter-spacing:-.02em}
+.price small{font-size:15px;color:var(--mut);font-weight:500}
+.plan ul{list-style:none;margin:16px 0 20px}
+.plan li{padding:5px 0;font-size:14.5px;color:#37435c}
+.plan li::before{content:"✓ ";color:var(--ok);font-weight:700}
+.plan li.no{color:#9aa5ba}.plan li.no::before{content:"— ";color:#c3cad6}
+.kofi-btn{display:block;text-align:center;background:#13c3ff;color:#083344;font-weight:700;border-radius:9px;padding:13px;text-decoration:none}
+.kofi-btn:hover{filter:brightness(.95)}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:10px}
+.faq summary{font-weight:600;cursor:pointer;font-size:15.5px}
+.faq p{color:var(--mut);margin-top:8px;font-size:14.5px}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--mut);font-size:13.5px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:var(--mut)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(15,20,32,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:24px;position:relative}
+.modal-x{position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;color:var(--mut);cursor:pointer}
+.modal-box h3{margin-bottom:4px}
+.modal-box .hint{margin-bottom:12px}
+@media (max-width:640px){.nav-links a:not(.btn){display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="logo" href="/">Review<span>Reply</span></a>
+  <div class="nav-links" id="navlinks">
+    <a href="#tool">Tool</a><a href="#how">How it works</a><a href="#pricing">Pricing</a>
+    <button class="btn btn-ghost" id="activateBtn" style="display:none">Activate Pro</button>
+    <span class="chip pro" id="proChip" style="display:none">PRO ✓</span>
+    <a class="btn" href="#pricing">Go Pro — $19 once</a>
+  </div>
+</div></nav>
+
+<header class="hero wrap">
+  <div class="pill">For owners who don't know what to write back</div>
+  <h1>Answer every Google review<br>like a pro — <em>in seconds</em></h1>
+  <p class="sub">A bad reply can cost you customers forever. Paste the review, get three polished,
+  ready-to-post responses written by an AI reputation manager. Edit if you like, post when you're happy.</p>
+</header>
+
+<div class="wrap" id="tool">
+  <div class="tool">
+    <div class="tool-head">
+      <div class="tool-title">Try it now — no signup</div>
+      <div class="chip" id="quotaChip">3 free replies today</div>
+    </div>
+    <textarea id="reviewText" placeholder="Paste the Google review here… e.g. “Waited 40 minutes for a table even though we had a reservation. Food was decent but the service ruined it.”"></textarea>
+    <div class="row">
+      <input type="text" class="grow" id="businessName" placeholder="Your business name (optional)">
+    </div>
+    <button class="btn gen" id="genBtn">Generate 3 replies</button>
+    <div class="spin" id="spin">Writing your replies…</div>
+    <div class="err" id="err"></div>
+    <div class="results" id="results"></div>
+    <div class="hint" id="quotaHint">Free: 3 review sets per day. <a href="#pricing" style="color:var(--brand)">Pro ($19 once)</a> = unlimited.</div>
+  </div>
+</div>
+
+<section id="how"><div class="wrap">
+  <h2 class="sec">How it works</h2>
+  <p class="secs">From dread to done in under a minute.</p>
+  <div class="grid3">
+    <div class="card"><span class="step-n">1</span><h3>Paste the review</h3><p>The glowing one or the furious one — both are handled with care.</p></div>
+    <div class="card"><span class="step-n">2</span><h3>Get 3 drafts</h3><p>Professional, Empathetic and Brief versions that address what was actually said.</p></div>
+    <div class="card"><span class="step-n">3</span><h3>Edit &amp; post</h3><p>You stay in control. Tweak the wording, copy it into Google, done.</p></div>
+  </div>
+</div></section>
+
+<section id="why" style="background:#eef1f8"><div class="wrap">
+  <h2 class="sec">Why owners use ReviewReply</h2>
+  <p class="secs">Your reviews are your storefront. Silence and angry replies both drive customers away.</p>
+  <div class="grid3">
+    <div class="card"><h3>Never freeze again</h3><p>Nobody teaches you how to answer “worst experience ever”. We turn it into a calm, credible response.</p></div>
+    <div class="card"><h3>Protects your rating story</h3><p>Thoughtful public replies signal to everyone reading that you take service seriously.</p></div>
+    <div class="card"><h3>Drafts, not robots</h3><p>Every reply is a starting point you edit — never an autopilot posting on your behalf.</p></div>
+    <div class="card"><h3>No account needed</h3><p>Paste, generate, copy. We don't connect to your Google Business Profile at all.</p></div>
+    <div class="card"><h3>Pay once</h3><p>$19 one time via Ko-fi. Not $300/month like reputation suites built for chains.</p></div>
+    <div class="card"><h3>Your data stays yours</h3><p>Reviews you paste are used only to write your replies. Nothing is published.</p></div>
+  </div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <h2 class="sec">Simple pricing</h2>
+  <p class="secs">Start free. Upgrade when you want unlimited power. Pay once — it's yours forever.</p>
+  <div class="plans">
+    <div class="plan">
+      <div class="price">Free</div>
+      <ul>
+        <li>3 review sets per day</li>
+        <li>3 tone variants each</li>
+        <li>Copy to clipboard</li>
+        <li class="no">No signup required</li>
+        <li class="no">Saved history &amp; export</li>
+      </ul>
+      <a class="btn btn-ghost" href="#tool" style="display:block;text-align:center">Use free</a>
+    </div>
+    <div class="plan hot">
+      <span class="tag">MOST POPULAR</span>
+      <div class="price">$19 <small>one-time · lifetime</small></div>
+      <ul>
+        <li><b>Unlimited</b> review sets, forever</li>
+        <li>Saved history in your browser</li>
+        <li>One-click export (.txt)</li>
+        <li>Premium AI model for sharper wording</li>
+        <li>Email support from a human</li>
+      </ul>
+      <a class="kofi-btn" id="kofiBtn" href="#" target="_blank" rel="noopener">Buy Pro on Ko-fi →</a>
+      <p class="hint" style="text-align:center;margin-top:10px">Secure checkout on Ko-fi. Your license key arrives by email in about a minute.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="faq" class="faq" style="background:#eef1f8"><div class="wrap" style="max-width:720px">
+  <h2 class="sec">FAQ</h2>
+  <details><summary>Does this connect to my Google account?</summary><p>No. You paste reviews manually and paste replies back. Nothing touches your Google Business Profile, so there's nothing to authorize and nothing can be posted without you.</p></details>
+  <details><summary>Will people know I used AI?</summary><p>The drafts sound like a thoughtful owner because they address the specifics of each review. They're meant to be edited — most owners tweak a sentence or two before posting.</p></details>
+  <details><summary>How does the one-time payment work?</summary><p>Checkout happens on Ko-fi (cards, PayPal). Right after payment our system emails your personal license key to the address you paid with. Enter it once in the app and Pro is unlocked on that browser — forever.</p></details>
+  <details><summary>What if my license email doesn't arrive?</summary><p>Check spam first. Still nothing? Reply to any email from us, or use the contact at the bottom of this page, and we'll resend it.</p></details>
+  <details><summary>Refunds?</summary><p>If Pro isn't worth it to you, reply to your license email within 14 days of purchase and we'll make it right.</p></details>
+  <details><summary>Are you affiliated with Google?</summary><p>No. ReviewReply is an independent tool and is not endorsed by or affiliated with Google.</p></details>
+</div></section>
+
+<footer><div class="wrap">
+  <div>© 2026 ReviewReply · Built for small businesses</div>
+  <div>Contact: john@oraforgetech.com · <a href="/pricing.html">Pricing</a></div>
+</div></footer>
+
+<div class="modal" id="modal"><div class="modal-box">
+  <button class="modal-x" id="modalX">×</button>
+  <h3>Activate Pro</h3>
+  <p class="hint">Enter the email you paid with and the license key we emailed you.</p>
+  <input type="text" id="actEmail" placeholder="you@example.com" style="margin-bottom:10px">
+  <input type="text" id="actKey" placeholder="RR-XXXXX-XXXXX">
+  <button class="btn gen" id="actBtn">Unlock Pro</button>
+  <div class="err" id="actErr"></div>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const KOFI=(window.RR_CONFIG&&window.RR_CONFIG.kofiUrl)||"#";
+$("#kofiBtn").href=KOFI;
+const LS_PRO="rr_pro",LS_USED="rr_used",LS_HIST="rr_history";
+function getPro(){try{return JSON.parse(localStorage.getItem(LS_PRO))}catch(e){return null}}
+function setPro(p){p?localStorage.setItem(LS_PRO,JSON.stringify(p)):localStorage.removeItem(LS_PRO);refreshProUi()}
+function refreshProUi(){
+  const pro=getPro();
+  $("#proChip").style.display=pro?"":"none";
+  $("#activateBtn").style.display=pro?"none":"";
+  $("#proChip").textContent=pro?("PRO ✓ "+pro.email):"PRO ✓";
+  $("#quotaChip").style.display=pro?"none":"";
+  $("#quotaHint").style.display=pro?"none":"";
+}
+refreshProUi();
+function showErr(msg){const e=$("#err");if(!msg){e.style.display="none";return}e.textContent=msg;e.style.display="block"}
+function usedToday(){try{const u=JSON.parse(localStorage.getItem(LS_USED));return u&&u.d===new Date().toDateString()?u.n:0}catch(e){return 0}}
+function bumpUsed(){localStorage.setItem(LS_USED,JSON.stringify({d:new Date().toDateString(),n:usedToday()+1}));updateQuota()}
+function updateQuota(){if(getPro())return;$("#quotaChip").textContent=Math.max(0,3-usedToday())+" of 3 free left today"}
+
+$("#genBtn").addEventListener("click",async()=>{
+  const text=$("#reviewText").value.trim();
+  if(text.length<10){showErr("Paste a longer review first (at least a full sentence).");return}
+  showErr("");$("#results").style.display="none";$("#genBtn").disabled=true;
+  $("#spin").style.display="block";$("#genBtn").textContent="Generating…";
+  const pro=getPro();
+  try{
+    const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({reviewText:text,businessName:$("#businessName").value.trim(),
+        license:pro?{email:pro.email,key:pro.key}:undefined})});
+    const d=await r.json();
+    if(!r.ok){showErr(d.error||"Something went wrong.");if(d.upgrade)scrollTo({top:document.querySelector("#pricing").offsetTop-70,behavior:"smooth"});}
+    else{
+      renderReplies(d.replies);
+      if(!pro)bumpUsed();updateQuota();
+      saveHistory({when:new Date().toISOString(),review:text.slice(0,200),replies:d.replies});
+    }
+  }catch(e){showErr("Network error — please try again.")}
+  $("#spin").style.display="none";$("#genBtn").disabled=false;$("#genBtn").textContent=getPro()?"Generate 3 replies":"Generate 3 replies (free)";
+});
+function renderReplies(replies){
+  const box=$("#results");box.innerHTML="";
+  replies.forEach((rep)=>{
+    const div=document.createElement("div");div.className="reply-card";
+    div.innerHTML=`<div class="reply-top"><span class="reply-label">${esc(rep.label)}</span>
+      <button class="btn btn-ghost copy">Copy</button></div>
+      <p style="font-size:15px;color:#232c42">${esc(rep.text)}</p>`;
+    div.querySelector(".copy").onclick=(ev)=>{navigator.clipboard.writeText(rep.text);
+      ev.target.textContent="Copied ✓";ev.target.classList.add("done");
+      setTimeout(()=>{ev.target.textContent="Copy";ev.target.classList.remove("done")},1600)};
+    box.appendChild(div);
+  });
+  box.style.display="block";
+}
+function esc(s){const d=document.createElement("div");d.textContent=s||"";return d.innerHTML}
+function saveHistory(item){try{const h=JSON.parse(localStorage.getItem(LS_HIST)||"[]");h.unshift(item);localStorage.setItem(LS_HIST,JSON.stringify(h.slice(0,50)))}catch(e){}}
+
+/* activation modal */
+const modal=$("#modal");
+$("#activateBtn").onclick=()=>{modal.classList.add("open")};
+$("#modalX").onclick=()=>modal.classList.remove("open");
+window.onclick=e=>{if(e.target===modal)modal.classList.remove("open")};
+// prefill from URL (?key=&email=) after purchase
+const qp=new URLSearchParams(location.search);
+if(qp.get("key")){$("#actKey").value=qp.get("key")}
+if(qp.get("email")){$("#actEmail").value=qp.get("email")}
+$("#actBtn").onclick=async()=>{
+  $("#actErr").style.display="none";
+  const email=$("#actEmail").value.trim(),key=$("#actKey").value.trim();
+  try{
+    const r=await fetch("/api/activate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,key})});
+    const d=await r.json();
+    if(d.ok){setPro({email,key});modal.classList.remove("open");alert("Pro unlocked 🎉 Unlimited replies enabled.")}
+    else{$("#actErr").textContent=d.error||"That key doesn't match.";$("#actErr").style.display="block"}
+  }catch(e){$("#actErr").textContent="Network error.";$("#actErr").style.display="block"}
+};
+updateQuota();
+</script>
+</body>
+</html>

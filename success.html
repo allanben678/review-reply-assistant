@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activate Pro — ReviewReply</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<script src="/config.js"></script>
+<style>
+:root{--ink:#131a2a;--mut:#5b677d;--line:#e4e8f2;--brand:#2563eb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f7f8fc;color:var(--ink);line-height:1.55;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;border:1px solid var(--line);border-radius:16px;max-width:480px;width:100%;padding:34px;box-shadow:0 10px 40px rgba(19,26,42,.08)}
+.logo{font-weight:800;font-size:20px;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--brand)}
+h1{font-size:24px;margin:18px 0 8px;letter-spacing:-.02em}
+p.sub{color:var(--mut);font-size:15px;margin-bottom:22px}
+input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;margin-bottom:12px;background:#fbfcfe}
+input:focus{outline:2px solid #bfdbfe;border-color:var(--brand)}
+.btn{width:100%;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn:hover{filter:brightness(.94)}
+.err{display:none;background:#fef3c7;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:14px;margin-top:12px}
+.ok{display:none;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:10px;padding:12px 14px;font-size:14.5px;margin-top:12px}
+.hint{font-size:13px;color:var(--mut);margin-top:16px}
+a{color:var(--brand)}
+ol{margin:10px 0 0 18px;color:var(--mut);font-size:14px}li{margin-top:4px}
+</style>
+</head>
+<body>
+<div class="box">
+  <a class="logo" href="/">Review<span>Reply</span></a>
+  <h1 id="title">Thanks for your purchase! 🎉</h1>
+  <p class="sub">Your license key is on its way to the email you paid with (arrives in about a minute — check spam).</p>
+  <div class="ok" id="okBox"><b>Pro unlocked.</b> Every reply from now on uses the premium model with no limits.
+    <div style="margin-top:10px"><a href="/">← Back to the tool</a></div></div>
+  <div id="formArea">
+    <p style="font-weight:600;font-size:15px">Already have your key? Activate below:</p>
+    <ol><li>Enter the <b>email you paid with</b></li><li>Paste the key from the email</li></ol>
+    <div style="height:14px"></div>
+    <input type="text" id="actEmail" placeholder="you@example.com">
+    <input type="text" id="actKey" placeholder="RR-XXXXX-XXXXX">
+    <button class="btn" id="actBtn">Unlock Pro</button>
+    <div class="err" id="errBox"></div>
+    <p class="hint">No email after a few minutes? Reply to any ReviewReply email and we'll resend it, or contact
+      john@oraforgetech.com from your payment address.</p>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const qp=new URLSearchParams(location.search);
+if(qp.get("email"))$("#actEmail").value=qp.get("email");
+if(qp.get("key"))$("#actKey").value=qp.get("key");
+function showErr(m){const e=$("#errBox");e.textContent=m;e.style.display="block"}
+$("#actBtn").onclick=async()=>{
+  $("#errBox").style.display="none";
+  const email=$("#actEmail").value.trim(),key=$("#actKey").value.trim();
+  try{
+    const r=await fetch("/api/activate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,key})});
+    const d=await r.json();
+    if(d.ok){
+      localStorage.setItem("rr_pro",JSON.stringify({email,key}));
+      $("#formArea").style.display="none";$("#okBox").style.display="block";
+      $("#title").textContent="You're all set 🎉";
+      setTimeout(()=>location.href="/",1800);
+    } else showErr(d.error||"That key doesn't match this email.");
+  }catch(e){showErr("Network error — try again.")}
+};
+// auto-activate if both params present
+if(qp.get("email")&&qp.get("key"))$("#actBtn").click();
+</script>
+</body>
+</html>

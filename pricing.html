@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing — ReviewReply</title>
+<meta name="description" content="ReviewReply Pro is $19 one-time. Unlimited AI review replies forever. No subscription.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<script src="/config.js"></script>
+<style>
+:root{--bg:#f7f8fc;--card:#fff;--ink:#131a2a;--mut:#5b677d;--line:#e4e8f2;--brand:#2563eb;--brand2:#1d4ed8;--ok:#059669}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+nav{border-bottom:1px solid var(--line);background:var(--bg)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:800;font-size:19px;text-decoration:none;color:var(--ink)}
+.logo span{color:var(--brand)}
+.nav-links a{color:var(--mut);text-decoration:none;margin-left:20px;font-size:15px}
+h1{text-align:center;font-size:clamp(28px,4.5vw,40px);letter-spacing:-.03em;margin:48px 0 10px}
+.sub{text-align:center;color:var(--mut);font-size:17px;margin-bottom:36px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:50px}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;position:relative}
+.plan.hot{border-color:var(--brand);box-shadow:0 8px 30px rgba(37,99,235,.12)}
+.tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px}
+.price{font-size:38px;font-weight:800;letter-spacing:-.02em}
+.price small{font-size:15px;color:var(--mut);font-weight:500}
+.plan ul{list-style:none;margin:16px 0 20px}
+.plan li{padding:5px 0;font-size:14.5px;color:#37435c}
+.plan li::before{content:"✓ ";color:var(--ok);font-weight:700}
+.plan li.no{color:#9aa5ba}.plan li.no::before{content:"— ";color:#c3cad6}
+.btn{display:inline-block;text-align:center;border-radius:9px;padding:13px;font-size:15px;font-weight:600;text-decoration:none}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line);display:block}
+.kofi-btn{display:block;text-align:center;background:#13c3ff;color:#083344;font-weight:700}
+.kofi-btn:hover{filter:brightness(.95)}
+.note{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:14px 18px;font-size:14.5px;max-width:640px;margin:0 auto 60px}
+footer{border-top:1px solid var(--line);padding:24px 0;color:var(--mut);font-size:13.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer a{color:var(--mut)}
+@media (max-width:640px){.nav-links a:not(:last-child){display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap nav-in">
+  <a class="logo" href="/">Review<span>Reply</span></a>
+  <div class="nav-links"><a href="/#how">How it works</a><a href="/#faq">FAQ</a><a href="/" style="color:var(--brand);font-weight:600">← Back to tool</a></div>
+</div></nav>
+
+<div class="wrap">
+  <h1>Pay once. Answer reviews forever.</h1>
+  <p class="sub">Reputation suites charge $300+/month because they're built for chains with sales teams.
+  You just want good replies. So we sell you the replies — once.</p>
+
+  <div class="plans">
+    <div class="plan">
+      <div class="price">Free</div>
+      <ul>
+        <li>3 review sets per day</li>
+        <li>Professional / Empathetic / Brief tones</li>
+        <li>No signup required</li>
+        <li class="no">Unlimited use</li>
+        <li class="no">Saved history &amp; export</li>
+      </ul>
+      <a class="btn btn-ghost" href="/">Use it free</a>
+    </div>
+    <div class="plan hot">
+      <span class="tag">LIFETIME DEAL</span>
+      <div class="price">$19 <small>one-time · yours forever</small></div>
+      <ul>
+        <li><b>Unlimited</b> review reply sets</li>
+        <li>Premium AI model for sharper wording</li>
+        <li>Saved history (in your browser)</li>
+        <li>One-click export to .txt</li>
+        <li>Email support from a human</li>
+        <li>All future improvements included</li>
+      </ul>
+      <a class="kofi-btn" id="kofiBtn" href="#" target="_blank" rel="noopener">Buy Pro on Ko-fi → $19</a>
+    </div>
+  </div>
+
+  <div class="note"><b>How activation works:</b> after paying on Ko-fi, our system instantly emails your personal
+  license key to the address you paid with (check spam in ~1 minute). Enter that email + key once in the app
+  and Pro unlocks on your browser — no account, no password.</div>
+</div>
+
+<footer><div class="wrap" style="display:flex"><span>© 2026 ReviewReply · Not affiliated with Google.</span><span>Contact: john@oraforgetech.com · <a href="/">Tool</a></span></div></footer>
+<script>document.getElementById("kofiBtn").href=(window.RR_CONFIG&&window.RR_CONFIG.kofiUrl)||"#";</script>
+</body>
+</html>
