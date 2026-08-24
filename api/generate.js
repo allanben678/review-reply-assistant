@@ -3,9 +3,9 @@
 // Pro (valid license): unlimited, premium model.
 const { isValidLicense, hitLimit, clientIp } = require("./_lib.js");
 
-const FREE_MODEL = process.env.FREE_MODEL || "google/gemma-4-31b-it:free";
-const FREE_FALLBACK = "z-ai/glm-5.2:free";
-const PRO_MODEL = process.env.PRO_MODEL || "google/gemini-flash-latest";
+const FREE_MODEL = process.env.FREE_MODEL || "google/gemini-2.5-flash-lite";
+const FREE_FALLBACK = "openai/gpt-5-nano";
+const PRO_MODEL = process.env.PRO_MODEL || "google/gemini-3.7-flash";
 const FREE_DAILY_LIMIT = 3;
 const ANON_INSTANCE_CAP = 400; // global per-instance safety cap
 
@@ -29,56 +29,97 @@ function systemPrompt(businessName) {
   ].join(" ");
 }
 
-async function callOpenRouter(model, system, userText) {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": process.env.APP_URL || "https://reviewreply.vercel.app",
-      "X-Title": "ReviewReply",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 700,
-      temperature: 0.7,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: userText },
-      ],
-    }),
-  });
-  if (!res.ok) {
+async function callOpenRouter(model, system, userText, maxTokens = 1000, tries = 2) {
+  for (let attempt = 1; attempt <= tries; attempt++) {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.APP_URL || "https://reviewreply.vercel.app",
+        "X-Title": "ReviewReply",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        temperature: 0.7,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: userText },
+        ],
+      }),
+    });
+    if (res.ok) return (await res.json()).choices?.[0]?.message?.content || "";
     const t = await res.text();
+    if ((res.status === 429 || res.status >= 500) && attempt < tries) {
+      await new Promise((r) => setTimeout(r, 700 * attempt));
+      continue;
+    }
     throw new Error(`openrouter ${res.status}: ${t.slice(0, 200)}`);
   }
-  return (await res.json()).choices?.[0]?.message?.content || "";
+  throw new Error("openrouter exhausted retries");
 }
 
 function parseReplies(raw) {
-  try {
-    const start = raw.indexOf("{");
-    const end = raw.lastIndexOf("}");
-    const obj = JSON.parse(raw.slice(start, end + 1));
-    if (Array.isArray(obj.replies) && obj.replies.length) {
-      const cleaned = obj.replies
-        .filter((r) => r && typeof r.text === "string" && r.text.trim())
-        .map((r, i) => ({
-          label: String(r.label || ["Professional", "Empathetic", "Brief"][i] || "Reply"),
-          text: r.text.trim(),
-        }));
-      if (cleaned.length) return cleaned;
-    }
-  } catch (_) {}
-  // Fallback: split on labels
-  const parts = raw.split(/(?=(Professional|Empathetic|Brief)\s*:)/gi).filter((p) => p.trim().length > 20);
+  let s = String(raw || "").trim();
+  // strip markdown fences
+  s = s.replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim();
+  // unwrap double-encoded JSON strings: "\"{\\\"replies\\\"...}\""
+  for (let i = 0; i < 2 && s.startsWith('"') && s.endsWith('"'); i++) {
+    try {
+      const inner = JSON.parse(s);
+      if (typeof inner === "string") {
+        s = inner.trim().replace(/^```[a-z]*\s*/i, "").replace(/```\s*$/, "").trim();
+        continue;
+      }
+      s = typeof inner === "object" ? JSON.stringify(inner) : s;
+    } catch (_) {}
+    break;
+  }
+  const candidates = [s];
+  const start = s.indexOf("{");
+  const end = s.lastIndexOf("}");
+  if (start !== -1 && end > start) candidates.push(s.slice(start, end + 1));
+  for (const c of candidates) {
+    try {
+      const obj = JSON.parse(c);
+      if (Array.isArray(obj.replies)) {
+        let arr = obj.replies;
+        // nested once more: replies:[ "{...}" ] or replies:{...}
+        if (arr.length === 1 && typeof arr[0] === "string") {
+          try { const o2 = JSON.parse(arr[0]); if (o2.replies) arr = o2.replies; } catch (_) {}
+        }
+        if (!Array.isArray(arr) && typeof arr === "object") arr = Object.values(arr);
+        const cleaned = arr
+          .map((r) => (typeof r === "string" ? (() => { try { return JSON.parse(r); } catch (_) { return null; } })() : r))
+          .filter((r) => r && typeof r.text === "string" && r.text.trim())
+          .map((r) => ({ label: String(r.label || "Reply"), text: r.text.trim() }));
+        if (cleaned.length >= 2) return cleaned.slice(0, 3);
+        if (cleaned.length === 1) return cleaned;
+      }
+    } catch (_) {}
+  }
+  // Salvage from truncated JSON: extract any complete label/text pairs.
+  const salvaged = [];
+  const re = /"label"\s*:\s*"([^"]{0,40})"\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  let m2;
+  while ((m2 = re.exec(s)) !== null) {
+    const text = m2[2]
+      .replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\\\/g, "\\")
+      .trim();
+    if (text.length > 20) salvaged.push({ label: m2[1] || "Reply", text });
+  }
+  if (salvaged.length >= 1) return salvaged.slice(0, 3);
+  // Fallback: split on labels like "Professional: ..."
+  const parts = s.split(/(?=(?:Professional|Empathetic|Brief)\s*:)/i).filter((p) => p.trim().length > 20);
   if (parts.length >= 2) {
     return parts.slice(0, 3).map((p, i) => {
       const m = p.match(/^\s*(Professional|Empathetic|Brief)\s*:\s*/i);
-      return { label: m ? m[1] : ["Professional", "Empathetic", "Brief"][i], text: p.replace(m ? m[0] : "", "").trim() };
+      return { label: m ? m[1][0].toUpperCase() + m[1].slice(1).toLowerCase() : ["Professional", "Empathetic", "Brief"][i], text: p.replace(m ? m[0] : "", "").trim() };
     });
   }
-  return [{ label: "Suggested reply", text: raw.trim().slice(0, 1200) }];
+  console.error("parse degraded; raw head:", s.slice(0, 160).replace(/\n/g, "\\n"));
+  return [{ label: "Suggested reply", text: s.replace(/^[{\[]+|[\}\]]+$/g, "").slice(0, 1200) }];
 }
 
 module.exports = async (req, res) => {
@@ -125,11 +166,15 @@ module.exports = async (req, res) => {
   const model = pro ? PRO_MODEL : FREE_MODEL;
   let raw;
   try {
-    raw = await callOpenRouter(model, systemPrompt(businessName), userText);
+    raw = await callOpenRouter(model, systemPrompt(businessName), userText, pro ? 1600 : 1000);
   } catch (e1) {
+    console.error("generate failed model=", model, "err:", e1.message);
     if (!pro) {
-      try { raw = await callOpenRouter(FREE_FALLBACK, systemPrompt(businessName), userText); }
-      catch (e2) { return res.status(502).json({ error: "Generation failed, please retry." }); }
+      try { raw = await callOpenRouter(FREE_FALLBACK, systemPrompt(businessName), userText, 1000); }
+      catch (e2) {
+        console.error("fallback failed err:", e2.message);
+        return res.status(502).json({ error: "Generation failed, please retry." });
+      }
     } else {
       return res.status(502).json({ error: "Generation failed, please retry." });
     }
